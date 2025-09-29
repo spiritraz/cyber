@@ -6,7 +6,6 @@ from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 
-# === RSA keys for server ===
 server_private_key = rsa.generate_private_key(
     public_exponent=65537,
     key_size=2048,
@@ -14,7 +13,6 @@ server_private_key = rsa.generate_private_key(
 )
 server_public_key = server_private_key.public_key()
 
-# === Crypto functions ===
 def rsa_decrypt(ciphertext):
     return server_private_key.decrypt(
         ciphertext,
@@ -55,12 +53,10 @@ def recv_all(conn, n):
         data += packet
     return data
 
-# === Client handler ===
 def handle_client(conn, addr):
     print(f"[+] Connected to {addr}")
 
     try:
-        # Send server public key (length-prefixed)
         pubkey_bytes = server_public_key.public_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PublicFormat.SubjectPublicKeyInfo
@@ -68,7 +64,6 @@ def handle_client(conn, addr):
         conn.sendall(len(pubkey_bytes).to_bytes(4, 'big'))
         conn.sendall(pubkey_bytes)
 
-        # Receive AES key (length-prefixed)
         aes_key_len_bytes = recv_all(conn, 4)
         if not aes_key_len_bytes:
             print("[-] Client disconnected before sending AES key")
@@ -83,7 +78,6 @@ def handle_client(conn, addr):
         aes_key = rsa_decrypt(aes_key_encrypted)
 
         while True:
-            # read command length + data (encrypted)
             command_len_bytes = recv_all(conn, 4)
             if not command_len_bytes:
                 break
@@ -99,7 +93,6 @@ def handle_client(conn, addr):
 
             if command.startswith("UPLOAD"):
                 parts = command.split(" ", 2)
-                # Format: UPLOAD filename filesize
                 if len(parts) < 3:
                     print("[!] Malformed UPLOAD command")
                     break
