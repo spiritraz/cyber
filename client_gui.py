@@ -10,7 +10,6 @@ from cryptography.hazmat.backends import default_backend
 
 AES_KEY = os.urandom(32)
 
-# ================== AES Utils ==================
 def aes_encrypt(key, plaintext):
     iv = os.urandom(16)
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
@@ -39,15 +38,13 @@ def recv_all(sock, n):
     return data
 
 
-# ================== Client App ==================
 class ClientApp:
     def __init__(self, root):
         self.root = root
         self.root.title("SafeNimble CloudApp")
         self.root.geometry("650x520")
-        self.root.configure(bg="#0F0F0F")  # Opera GX black
+        self.root.configure(bg="#0F0F0F") 
 
-        # 🎨 Opera GX Style
         style = ttk.Style()
         style.theme_use("clam")
         style.configure("TButton",
@@ -61,7 +58,6 @@ class ClientApp:
                   background=[("active", "#FF1E8E")],
                   foreground=[("active", "white")])
 
-        # Title
         self.title_label = tk.Label(root,
                                     text="🚀 SafeNimble GX",
                                     font=("Segoe UI", 22, "bold"),
@@ -69,7 +65,6 @@ class ClientApp:
                                     fg="#FF004D")
         self.title_label.pack(pady=15)
 
-        # Button row
         button_frame = tk.Frame(root, bg="#0F0F0F")
         button_frame.pack(pady=5, fill=tk.X)
 
@@ -82,7 +77,6 @@ class ClientApp:
         self.download_btn = ttk.Button(button_frame, text="⬇️ Download", command=self.download_file_threaded, state=tk.DISABLED)
         self.download_btn.pack(side=tk.LEFT, padx=12, pady=5)
 
-        # File list
         list_frame = tk.Frame(root, bg="#0F0F0F")
         list_frame.pack(pady=15, fill=tk.BOTH, expand=True)
 
@@ -104,15 +98,12 @@ class ClientApp:
         self.file_listbox.pack(padx=10, pady=5, fill=tk.BOTH, expand=True)
         scrollbar.config(command=self.file_listbox.yview)
 
-        # Socket
         self.sock = None
         threading.Thread(target=self.connect_to_server, daemon=True).start()
 
-        # Animate title glow
         self.glow_state = True
         self.animate_title()
 
-    # ====== Connection ======
     def connect_to_server(self):
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -238,17 +229,15 @@ class ClientApp:
         except Exception as e:
             self.root.after(0, lambda: messagebox.showerror("Error", f"Failed to download file:\n{e}"))
 
-    # ====== Glow Animation ======
     def animate_title(self):
         if self.glow_state:
-            self.title_label.config(fg="#FF1E8E")  # pink glow
+            self.title_label.config(fg="#FF1E8E")  
         else:
-            self.title_label.config(fg="#FF004D")  # red glow
+            self.title_label.config(fg="#FF004D")  
         self.glow_state = not self.glow_state
         self.root.after(800, self.animate_title)
 
 
-# ================== Run ==================
 if __name__ == "__main__":
     root = tk.Tk()
     app = ClientApp(root)
